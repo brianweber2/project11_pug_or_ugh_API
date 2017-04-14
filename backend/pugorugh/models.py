@@ -73,15 +73,18 @@ class UserPref(models.Model):
     user = models.ForeignKey(User)
     age = models.CharField(
         max_length=1,
-        choices=AGE_CHOICES
+        choices=AGE_CHOICES,
+        default='b'
     )
     gender = models.CharField(
         max_length=1,
-        choices=GENDER_CHOICES
+        choices=GENDER_CHOICES,
+        default='m'
     )
     size = models.CharField(
         max_length=2,
-        choices=SIZE_CHOICES
+        choices=SIZE_CHOICES,
+        default='s'
     )
 
     def __str__(self):

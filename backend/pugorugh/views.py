@@ -99,5 +99,8 @@ class UserPrefViewSet(
     # /api/user/preferences/
     @detail_route(methods=['get', 'put'])
     def preferences(self, request, pk=None):
-        pass
+        user = request.user
+        user_pref, created = models.UserPref.object.get_or_create(user=user)
+        serializer = serializers.UserPrefSerializer(user_pref)
+        return Response(serializer.data)
 
