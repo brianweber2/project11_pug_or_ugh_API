@@ -99,10 +99,33 @@ class UserDogViewsTests(BasicSetupForAPITests):
 class UserPrefViewsTests(BasicSetupForAPITests):
     def test_get_user_pref(self):
         response = self.client.get('/api/user/preferences/')
-        print(response)
+        test_user_pref = UserPref.objects.get(user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['gender'], test_user_pref.gender)
+        self.assertEqual(response.data['age'], test_user_pref.age)
+        self.assertEqual(response.data['size'], test_user_pref.size)
 
-    def test_update_user_pref(self):
-        pass
+    def test_update_user_pref_single_value(self):
+        response = self.client.put(
+            '/api/user/preferences/',
+            {'age': 's', 'gender': 'f', 'size': 'xl'}
+        )
+        test_user_pref = UserPref.objects.get(user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['gender'], test_user_pref.gender[0])
+        self.assertEqual(response.data['age'], test_user_pref.age[0])
+        self.assertEqual(response.data['size'], test_user_pref.size[0])
+
+    def test_update_user_pref_mult_values(self):
+        response = self.client.put(
+            '/api/user/preferences/',
+            {'age': ['b', 'a'], 'gender': ['m', 'f'], 'size': ['s', 'xl']}
+        )
+        test_user_pref = UserPref.objects.get(user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['gender'], test_user_pref.gender)
+        self.assertEqual(response.data['age'], test_user_pref.age)
+        self.assertEqual(response.data['size'], test_user_pref.size)
 
 
 class AccountViewsTests(BasicSetupForAPITests):
@@ -208,6 +231,7 @@ class UserSerializerTest(TestCase):
             data['username'],
             self.test_user_attributes['username']
         )
+
 
 class DogSerializerTest(TestCase):
     def setUp(self):

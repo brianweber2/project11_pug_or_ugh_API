@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from rest_framework import mixins
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 
@@ -97,10 +97,20 @@ class UserPrefViewSet(
     serializer_class = serializers.UserPrefSerializer
 
     # /api/user/preferences/
-    @detail_route(methods=['get', 'put'])
+    @list_route(methods=['get', 'put'])
     def preferences(self, request, pk=None):
         user = request.user
-        user_pref, created = models.UserPref.object.get_or_create(user=user)
+        data = request.data
+        user_pref, created = models.UserPref.objects.get_or_create(
+            user=user
+        )
+
+        if request.method == 'PUT':
+            user_pref.age = data.get('age')
+            user_pref.gender = data.get('gender')
+            user_pref.size = data.get('size')
+            user_pref.save()
+
         serializer = serializers.UserPrefSerializer(user_pref)
         return Response(serializer.data)
 
