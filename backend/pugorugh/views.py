@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import Http404, get_object_or_404
 
 from rest_framework import permissions
 from rest_framework import mixins
@@ -25,18 +26,35 @@ class DogViewSet(
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
+    def _filter_on_preferences(self, dog_filter, user_prefs):
+        pass
+
+    def get_filtered_queryset(self):
+        user =  self.request.user
+        dog_filter = self.kwargs.get('dog_filter')
+        print(dog_filter)
+        # Get user preferences
+        user_prefs = get_object_or_404(models.UserPref, user=user)
+        # Get age ranges(months) based on user preference selections
+        queryset = self._filter_on_preferences(dog_filter, user_prefs)
+        return queryset
+
+    def get_next_object(self):
+        pk = int(self.kwargs.get('pk'))
+        queryset = self.get_filtered_queryset().filter(pk__gt=pk)
+        obj = queryset.first()
+        if not obj:
+            raise Http404
+        return obj
+
     # /api/dog/<pk>/liked/next/
     @detail_route(methods=['get'], url_path='liked/next')
     def liked_next(self, request, pk=None):
         user = request.user
-        dog = self.get_object()
-        user_dog = models.UserDog.objects.get(user=user, dog=dog)
-        if user_dog.status == 'l':
-            serializer = serializers.DogSerializer(user_dog.dog)
-            return Response(serializer.data)
-        else:
-            return Response(404)
+        dog = self.get_next_object()
 
+        serializer = serializers.DogSerializer(dog)
+        return Response(serializer.data)
 
     # /api/dog/<pk>/disliked/next/
     @detail_route(methods=['get'], url_path='disliked/next')

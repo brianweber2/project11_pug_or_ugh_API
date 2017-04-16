@@ -1,2 +1,5 @@
+coverage==4.3.4
 Django==1.9.9
+django-multiselectfield==0.1.5
 djangorestframework==3.4.1
+olefile==0.44

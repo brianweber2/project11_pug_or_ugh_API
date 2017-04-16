@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.test import TestCase, Client
+from django.test import TestCase
 
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.authtoken.models import Token
@@ -73,21 +73,67 @@ class BasicSetupForAPITests(APITestCase):
 class DogViewsTests(BasicSetupForAPITests):
     # /api/dog/<pk>/liked/
     def test_change_dogs_status_liked(self):
-        pass
-        # self.assertEqual(response.data, {'dog': 1, 'status': 'l'})
+        response1 = self.client.post('/api/dog/1/liked/')
+        self.assertEqual(response1.data, {'dog': 1, 'status': 'l'})
+        self.assertEqual(response1.data['dog'], self.test_dog1.pk)
 
+        response2 = self.client.post('/api/dog/2/liked/')
+        self.assertEqual(response2.data, {'dog': 2, 'status': 'l'})
+        self.assertEqual(response2.data['dog'], self.test_dog2.pk)
+
+        response3 = self.client.put('/api/dog/1/liked/')
+        self.assertEqual(response1.data, {'dog': 1, 'status': 'l'})
+        self.assertEqual(response1.data['dog'], self.test_dog1.pk)
+
+        response4 = self.client.put('/api/dog/2/liked/')
+        self.assertEqual(response2.data, {'dog': 2, 'status': 'l'})
+        self.assertEqual(response2.data['dog'], self.test_dog2.pk)
+
+    # /api/dog/<pk>/disliked/
     def test_change_dogs_status_disliked(self):
-        pass
+        response1 = self.client.post('/api/dog/1/disliked/')
+        self.assertEqual(response1.data, {'dog': 1, 'status': 'd'})
+        self.assertEqual(response1.data['dog'], self.test_dog1.pk)
 
+        response2 = self.client.post('/api/dog/2/disliked/')
+        self.assertEqual(response2.data, {'dog': 2, 'status': 'd'})
+        self.assertEqual(response2.data['dog'], self.test_dog2.pk)
+
+        response3 = self.client.put('/api/dog/1/disliked/')
+        self.assertEqual(response1.data, {'dog': 1, 'status': 'd'})
+        self.assertEqual(response1.data['dog'], self.test_dog1.pk)
+
+        response4 = self.client.put('/api/dog/2/disliked/')
+        self.assertEqual(response2.data, {'dog': 2, 'status': 'd'})
+        self.assertEqual(response2.data['dog'], self.test_dog2.pk)
+
+    # /api/dog/<pk>/undecided/
     def test_change_dogs_status_undecided(self):
-        pass
+        response1 = self.client.post('/api/dog/1/undecided/')
+        self.assertEqual(response1.data, {'dog': 1, 'status': 'u'})
+        self.assertEqual(response1.data['dog'], self.test_dog1.pk)
 
+        response2 = self.client.post('/api/dog/2/undecided/')
+        self.assertEqual(response2.data, {'dog': 2, 'status': 'u'})
+        self.assertEqual(response2.data['dog'], self.test_dog2.pk)
+
+        response3 = self.client.put('/api/dog/1/undecided/')
+        self.assertEqual(response1.data, {'dog': 1, 'status': 'u'})
+        self.assertEqual(response1.data['dog'], self.test_dog1.pk)
+
+        response4 = self.client.put('/api/dog/2/undecided/')
+        self.assertEqual(response2.data, {'dog': 2, 'status': 'u'})
+        self.assertEqual(response2.data['dog'], self.test_dog2.pk)
+
+    # /api/dog/<pk>/liked/next/
     def test_get_next_liked_dog(self):
         pass
 
+    # /api/dog/<pk>/disliked/next/
     def test_get_next_disliked_dog(self):
         pass
 
+    # /api/dog/<pk>/undecided/next/
     def test_get_next_undecided_dog(self):
         pass
 
