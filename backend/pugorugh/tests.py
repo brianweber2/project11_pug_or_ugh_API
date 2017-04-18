@@ -27,6 +27,32 @@ dog2 = {
     'gender': 'm',
     'size': 'l'
 }
+dog3 = {
+    'name': 'Skip',
+    'image_filename': 'skip.png',
+    'breed': 'golden retriever',
+    'age': 60,
+    'gender': 'f',
+    'size': 'xl'
+}
+
+dog4 = {
+    'name': 'George',
+    'image_filename': 'george.png',
+    'breed': 'golden retriever',
+    'age': 35,
+    'gender': 'm',
+    'size': 'l'
+}
+dog5 = {
+    'name': 'Max',
+    'image_filename': 'max.png',
+    'breed': 'pug',
+    'age': 3,
+    'gender': 'm',
+    'size': 's'
+}
+
 
 
 # Base testing
@@ -40,6 +66,10 @@ class BasicSetupForAPITests(APITestCase):
         self.user_token = Token.objects.create(user=self.test_user)
         self.test_dog1 = Dog.objects.create(**dog1)
         self.test_dog2 = Dog.objects.create(**dog2)
+        self.test_dog3 = Dog.objects.create(**dog3)
+        self.test_dog4 = Dog.objects.create(**dog4)
+        self.test_dog5 = Dog.objects.create(**dog5)
+
         self.test_user_pref = UserPref.objects.create(
             user=self.test_user,
             age='b',
@@ -53,6 +83,16 @@ class BasicSetupForAPITests(APITestCase):
         self.test_user_dog2 = UserDog.objects.create(
             user=self.test_user,
             dog=self.test_dog2,
+            status='l'
+        )
+        self.test_user_dog3 = UserDog.objects.create(
+            user=self.test_user,
+            dog=self.test_dog3,
+            status='d'
+        )
+        self.test_user_dog4 = UserDog.objects.create(
+            user=self.test_user,
+            dog=self.test_dog4,
             status='d'
         )
 
@@ -62,9 +102,11 @@ class BasicSetupForAPITests(APITestCase):
         )
 
     def tearDown(self):
-        # self.test_user.delete()
         self.test_dog1.delete()
         self.test_dog2.delete()
+        self.test_dog3.delete()
+        self.test_dog4.delete()
+        self.test_dog5.delete()
 
 
 ################################
@@ -127,15 +169,22 @@ class DogViewsTests(BasicSetupForAPITests):
 
     # /api/dog/<pk>/liked/next/
     def test_get_next_liked_dog(self):
-        pass
+        response = self.client.get('/api/dog/1/liked/next/')
+        self.assertEqual(response.status_code, 200)
 
     # /api/dog/<pk>/disliked/next/
     def test_get_next_disliked_dog(self):
-        pass
+        response = self.client.get('/api/dog/1/disliked/next/')
+        self.assertEqual(response.status_code, 200)
 
     # /api/dog/<pk>/undecided/next/
     def test_get_next_undecided_dog(self):
-        pass
+        response = self.client.get('/api/dog/1/undecided/next/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_bad_filter(self):
+        response = self.client.get('/api/dog/1/likedd/next/')
+        self.assertEqual(response.status_code, 404)
 
 
 class UserDogViewsTests(BasicSetupForAPITests):

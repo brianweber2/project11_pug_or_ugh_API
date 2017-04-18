@@ -1,21 +1,103 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import Http404, get_object_or_404
+from django.db.models import Q
 
 from rest_framework import permissions
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from . import serializers
 from . import models
+
+def classify_dog_age(age_prefs):
+    age_filter = {}
+    for age_pref in age_prefs:
+        if age_pref == 'b':
+            age_filter['b'] = [0, 12]
+        elif age_pref == 'y':
+            age_filter['y'] = [12, 24]
+        elif age_pref == 'a':
+            age_filter['a'] = [24, 72]
+        elif age_pref == 's':
+            age_filter['s'] = [72, 200]
+    return age_filter
 
 
 class UserRegisterView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     model = get_user_model()
     serializer_class = serializers.UserSerializer
+
+
+class GetNextDog(RetrieveAPIView):
+    '''
+    Grabs the next liked, disliked or undecided dog.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = models.Dog.objects.all()
+    serializer_class = serializers.DogSerializer
+
+    def _filter_on_preferences(self, dog_filter, user_prefs):
+        age_prefs = user_prefs.age
+        gender_prefs = user_prefs.gender
+        size_prefs = user_prefs.size
+
+        if dog_filter == 'liked':
+            query_filter = 'l'
+        elif dog_filter == 'disliked':
+            query_filter = 'd'
+        elif dog_filter == 'undecided':
+            query_filter = 'u'
+        else:
+            raise Http404
+
+        if query_filter == 'u':
+            dogs = models.Dog.objects.filter(
+                (Q(age__gte=0) & Q(age__lte=(12))) |
+                (Q(age__gte=24) & Q(age__lte=(72))),
+                gender__in=gender_prefs,
+                size__in=size_prefs,
+            )
+            return dogs
+        elif query_filter == 'l':
+            user_dogs = models.UserDog.objects.filter(
+                user=user_prefs.user,
+                status='l'
+            )
+            return user_dogs
+        elif query_filter == 'd':
+            user_dogs = models.UserDog.objects.filter(
+                user=user_prefs.user,
+                status='d'
+            )
+            return user_dogs
+
+    def get_queryset(self):
+        user = self.request.user
+        dog_filter = self.kwargs.get('dog_filter')
+        # Get user preferences
+        user_prefs = get_object_or_404(models.UserPref, user=user)
+        # Get dogs based on user preference selections
+        queryset = self._filter_on_preferences(dog_filter, user_prefs)
+        return queryset
+
+    def get_object(self):
+        pk = int(self.kwargs.get('pk'))
+        dog_filter = self.kwargs.get('dog_filter')
+
+        # Filter the query for the NEXT dog by pk
+        if dog_filter == 'undecided':
+            queryset = self.get_queryset().filter(pk__gt=pk)
+            obj = queryset.first()
+        else:
+            queryset = self.get_queryset().filter(dog__pk__gt=pk)
+            obj = queryset.first().dog
+        if not obj:
+            raise Http404
+        return obj
 
 
 class DogViewSet(
@@ -25,46 +107,6 @@ class DogViewSet(
     permission_classes = (permissions.IsAuthenticated,)
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
-
-    def _filter_on_preferences(self, dog_filter, user_prefs):
-        pass
-
-    def get_filtered_queryset(self):
-        user =  self.request.user
-        dog_filter = self.kwargs.get('dog_filter')
-        print(dog_filter)
-        # Get user preferences
-        user_prefs = get_object_or_404(models.UserPref, user=user)
-        # Get age ranges(months) based on user preference selections
-        queryset = self._filter_on_preferences(dog_filter, user_prefs)
-        return queryset
-
-    def get_next_object(self):
-        pk = int(self.kwargs.get('pk'))
-        queryset = self.get_filtered_queryset().filter(pk__gt=pk)
-        obj = queryset.first()
-        if not obj:
-            raise Http404
-        return obj
-
-    # /api/dog/<pk>/liked/next/
-    @detail_route(methods=['get'], url_path='liked/next')
-    def liked_next(self, request, pk=None):
-        user = request.user
-        dog = self.get_next_object()
-
-        serializer = serializers.DogSerializer(dog)
-        return Response(serializer.data)
-
-    # /api/dog/<pk>/disliked/next/
-    @detail_route(methods=['get'], url_path='disliked/next')
-    def disliked_next(self, request, pk=None):
-        pass
-
-    # /api/dog/<pk>/undecided/next/
-    @detail_route(methods=['get'], url_path='undecided/next')
-    def undecided_next(self, request, pk=None):
-        pass
 
     # /api/dog/<pk>/liked/
     @detail_route(methods=['post', 'put'])

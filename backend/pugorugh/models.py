@@ -47,7 +47,7 @@ class UserDog(models.Model):
     dog = models.ForeignKey(Dog, related_name='dogs')
     status = models.CharField(
         max_length=1,
-        choices=STATUS_CHOICES
+        choices=STATUS_CHOICES,
     )
 
     def __str__(self):

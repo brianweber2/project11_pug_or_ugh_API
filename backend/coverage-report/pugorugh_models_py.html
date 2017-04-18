@@ -214,10 +214,10 @@
 <p id="t44" class="pln">    <span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t45" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t46" class="stm run hide_run">    <span class="nam">user</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">ForeignKey</span><span class="op">(</span><span class="nam">User</span><span class="op">,</span> <span class="nam">null</span><span class="op">=</span><span class="key">True</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
-<p id="t47" class="stm run hide_run">    <span class="nam">dog</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">ForeignKey</span><span class="op">(</span><span class="nam">Dog</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
+<p id="t47" class="stm run hide_run">    <span class="nam">dog</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">ForeignKey</span><span class="op">(</span><span class="nam">Dog</span><span class="op">,</span> <span class="nam">related_name</span><span class="op">=</span><span class="str">'dogs'</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t48" class="stm run hide_run">    <span class="nam">status</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">CharField</span><span class="op">(</span><span class="strut">&nbsp;</span></p>
 <p id="t49" class="pln">        <span class="nam">max_length</span><span class="op">=</span><span class="num">1</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
-<p id="t50" class="pln">        <span class="nam">choices</span><span class="op">=</span><span class="nam">STATUS_CHOICES</span><span class="strut">&nbsp;</span></p>
+<p id="t50" class="pln">        <span class="nam">choices</span><span class="op">=</span><span class="nam">STATUS_CHOICES</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t51" class="pln">    <span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t52" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t53" class="stm run hide_run">    <span class="key">def</span> <span class="nam">__str__</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span><span class="strut">&nbsp;</span></p>
@@ -274,7 +274,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v4.3.4</a>,
-            created at 2017-04-15 13:06
+            created at 2017-04-18 16:30
         </p>
     </div>
 </div>
