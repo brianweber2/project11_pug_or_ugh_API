@@ -18,10 +18,10 @@ class Dog(models.Model):
         ('u', 'unknown'),
     )
 
-    name = models.CharField(max_length=255)
-    image_filename = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default='Buddy')
+    image_filename = models.CharField(max_length=255, default='')
     breed = models.CharField(max_length=255, default='')
-    age = models.IntegerField()
+    age = models.IntegerField(default=1)
     gender = models.CharField(
         max_length=1,
         choices=GENDER_CHOICES,

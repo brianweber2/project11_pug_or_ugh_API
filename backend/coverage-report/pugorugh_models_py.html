@@ -188,10 +188,10 @@
 <p id="t18" class="pln">        <span class="op">(</span><span class="str">'u'</span><span class="op">,</span> <span class="str">'unknown'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t19" class="pln">    <span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t20" class="pln"><span class="strut">&nbsp;</span></p>
-<p id="t21" class="stm run hide_run">    <span class="nam">name</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">CharField</span><span class="op">(</span><span class="nam">max_length</span><span class="op">=</span><span class="num">255</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
-<p id="t22" class="stm run hide_run">    <span class="nam">image_filename</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">CharField</span><span class="op">(</span><span class="nam">max_length</span><span class="op">=</span><span class="num">255</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
+<p id="t21" class="stm run hide_run">    <span class="nam">name</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">CharField</span><span class="op">(</span><span class="nam">max_length</span><span class="op">=</span><span class="num">255</span><span class="op">,</span> <span class="nam">default</span><span class="op">=</span><span class="str">'Buddy'</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
+<p id="t22" class="stm run hide_run">    <span class="nam">image_filename</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">CharField</span><span class="op">(</span><span class="nam">max_length</span><span class="op">=</span><span class="num">255</span><span class="op">,</span> <span class="nam">default</span><span class="op">=</span><span class="str">''</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t23" class="stm run hide_run">    <span class="nam">breed</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">CharField</span><span class="op">(</span><span class="nam">max_length</span><span class="op">=</span><span class="num">255</span><span class="op">,</span> <span class="nam">default</span><span class="op">=</span><span class="str">''</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
-<p id="t24" class="stm run hide_run">    <span class="nam">age</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">IntegerField</span><span class="op">(</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
+<p id="t24" class="stm run hide_run">    <span class="nam">age</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">IntegerField</span><span class="op">(</span><span class="nam">default</span><span class="op">=</span><span class="num">1</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 <p id="t25" class="stm run hide_run">    <span class="nam">gender</span> <span class="op">=</span> <span class="nam">models</span><span class="op">.</span><span class="nam">CharField</span><span class="op">(</span><span class="strut">&nbsp;</span></p>
 <p id="t26" class="pln">        <span class="nam">max_length</span><span class="op">=</span><span class="num">1</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t27" class="pln">        <span class="nam">choices</span><span class="op">=</span><span class="nam">GENDER_CHOICES</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
@@ -274,7 +274,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v4.3.4</a>,
-            created at 2017-04-18 16:30
+            created at 2017-04-20 09:17
         </p>
     </div>
 </div>

@@ -52,8 +52,14 @@ dog5 = {
     'gender': 'm',
     'size': 's'
 }
-
-
+dog6 = {
+    'name': 'Bruce',
+    'image_filename': 'bruce.png',
+    'breed': 'bulldog',
+    'age': 120,
+    'gender': 'm',
+    'size': 'l'
+}
 
 # Base testing
 class BasicSetupForAPITests(APITestCase):
@@ -69,11 +75,12 @@ class BasicSetupForAPITests(APITestCase):
         self.test_dog3 = Dog.objects.create(**dog3)
         self.test_dog4 = Dog.objects.create(**dog4)
         self.test_dog5 = Dog.objects.create(**dog5)
+        self.test_dog6 = Dog.objects.create(**dog6)
 
         self.test_user_pref = UserPref.objects.create(
             user=self.test_user,
-            age='b',
-            gender='f'
+            age=['b', 'y', 'a', 's'],
+            gender=['m', 'f']
         )
         self.test_user_dog1 = UserDog.objects.create(
             user=self.test_user,
@@ -107,6 +114,7 @@ class BasicSetupForAPITests(APITestCase):
         self.test_dog3.delete()
         self.test_dog4.delete()
         self.test_dog5.delete()
+        self.test_dog6.delete()
 
 
 ################################
@@ -182,9 +190,40 @@ class DogViewsTests(BasicSetupForAPITests):
         response = self.client.get('/api/dog/1/undecided/next/')
         self.assertEqual(response.status_code, 200)
 
+    def test_get_next_undecided_dog_404(self):
+        response = self.client.get('/api/dog/7/undecided/next/')
+        self.assertEqual(response.status_code, 404)
+
     def test_bad_filter(self):
         response = self.client.get('/api/dog/1/likedd/next/')
         self.assertEqual(response.status_code, 404)
+
+    def test_add_new_dog(self):
+        response = self.client.post(
+            '/api/dog/',
+            {
+                'name': 'Another Dog',
+                'image_filename': '20.png',
+                'breed': 'labrador',
+                'age': 55,
+                'gender': 'm',
+                'size': 'l'
+        })
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['age'], 55)
+        self.assertEqual(response.data['name'], 'Another Dog')
+
+    def test_delete_dog(self):
+        response = self.client.delete('/api/dog/1/')
+        self.assertEqual(response.status_code, 204)
+
+    def test_update_dog(self):
+        response = self.client.put(
+            '/api/dog/1/',
+            {'age': 50}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['age'], 50)
 
 
 class UserDogViewsTests(BasicSetupForAPITests):

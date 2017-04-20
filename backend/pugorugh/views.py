@@ -16,15 +16,21 @@ def classify_dog_age(age_prefs):
     age_filter = {}
     for age_pref in age_prefs:
         if age_pref == 'b':
-            age_filter['b'] = [0, 12]
+            age_filter['b'] = range(0, 12)
         elif age_pref == 'y':
-            age_filter['y'] = [12, 24]
+            age_filter['y'] = range(12, 24)
         elif age_pref == 'a':
-            age_filter['a'] = [24, 72]
+            age_filter['a'] = range(24, 72)
         elif age_pref == 's':
-            age_filter['s'] = [72, 200]
+            age_filter['s'] = range(72, 200)
     return age_filter
 
+def create_dog_age_list(age_ranges):
+    age_range_list = []
+    for age_range in age_ranges.values():
+        for x in age_range:
+            age_range_list.append(x)
+    return age_range_list
 
 class UserRegisterView(CreateAPIView):
     permission_classes = (permissions.AllowAny,)
@@ -45,6 +51,9 @@ class GetNextDog(RetrieveAPIView):
         gender_prefs = user_prefs.gender
         size_prefs = user_prefs.size
 
+        age_ranges = classify_dog_age(age_prefs)
+        age_range_list = create_dog_age_list(age_ranges)
+
         if dog_filter == 'liked':
             query_filter = 'l'
         elif dog_filter == 'disliked':
@@ -56,8 +65,7 @@ class GetNextDog(RetrieveAPIView):
 
         if query_filter == 'u':
             dogs = models.Dog.objects.filter(
-                (Q(age__gte=0) & Q(age__lte=(12))) |
-                (Q(age__gte=24) & Q(age__lte=(72))),
+                age__in=age_range_list,
                 gender__in=gender_prefs,
                 size__in=size_prefs,
             )
@@ -101,8 +109,10 @@ class GetNextDog(RetrieveAPIView):
 
 
 class DogViewSet(
+    mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = models.Dog.objects.all()
