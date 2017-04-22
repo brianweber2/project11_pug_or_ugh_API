@@ -6,7 +6,8 @@ from rest_framework import permissions
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import (CreateAPIView, RetrieveAPIView,
+                                     UpdateAPIView)
 from rest_framework.response import Response
 
 from . import serializers
@@ -159,6 +160,7 @@ class DogViewSet(
 
 
 class UserPrefViewSet(
+    mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet):

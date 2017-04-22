@@ -19,6 +19,6 @@ urlpatterns = format_suffix_patterns([
     url(r'^$',
         TemplateView.as_view(template_name='index.html'),
         name='next_dog'),
-    url(r'^api/dog/(?P<pk>\d+)/(?P<dog_filter>.+)/next/$',
-        GetNextDog.as_view()),
+    url(r'^api/dog/(?P<pk>[\d-]+)/(?P<dog_filter>.+)/next/$',
+        GetNextDog.as_view(), name='get-next-dog'),
 ])
