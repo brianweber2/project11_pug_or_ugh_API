@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from multiselectfield import MultiSelectField
-
 
 class Dog(models.Model):
     GENDER_CHOICES = (
@@ -55,41 +53,18 @@ class UserDog(models.Model):
 
 
 class UserPref(models.Model):
-    AGE_CHOICES = (
-        ('b', 'baby'),
-        ('y', 'young'),
-        ('a', 'adult'),
-        ('s', 'senior'),
-    )
-    GENDER_CHOICES = (
-        ('m', 'male'),
-        ('f', 'female'),
-    )
-    SIZE_CHOICES = (
-        ('s', 'small'),
-        ('m', 'medium'),
-        ('l', 'large'),
-        ('xl', 'extra large'),
-    )
-
     user = models.ForeignKey(User)
-    age = MultiSelectField(
+    age = models.CharField(
         max_length=1,
-        choices=AGE_CHOICES,
-        default='b',
-        max_choices=4
+        default='b,y,a,s'
     )
-    gender = MultiSelectField(
+    gender = models.CharField(
         max_length=1,
-        choices=GENDER_CHOICES,
-        default='m',
-        max_choices=2
+        default='m,f'
     )
-    size = MultiSelectField(
+    size = models.CharField(
         max_length=2,
-        choices=SIZE_CHOICES,
-        default='s',
-        max_choices=4
+        default='s,m,l,xl'
     )
 
     def __str__(self):

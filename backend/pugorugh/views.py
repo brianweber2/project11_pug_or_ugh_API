@@ -48,7 +48,7 @@ class GetNextDog(RetrieveAPIView):
     serializer_class = serializers.DogSerializer
 
     def _filter_on_preferences(self, dog_filter, user_prefs):
-        age_prefs = user_prefs.age
+        age_prefs = user_prefs.age.split(',')
         gender_prefs = user_prefs.gender
         size_prefs = user_prefs.size
 
@@ -94,7 +94,12 @@ class GetNextDog(RetrieveAPIView):
         return queryset
 
     def get_object(self):
-        pk = int(self.kwargs.get('pk'))
+        pk = self.kwargs.get('pk')
+        print(pk)
+        try:
+            pk = int(pk)
+        except:
+            raise Http404
         dog_filter = self.kwargs.get('dog_filter')
 
         # Filter the query for the NEXT dog by pk
@@ -172,12 +177,10 @@ class UserPrefViewSet(
     @list_route(methods=['get', 'put'])
     def preferences(self, request, pk=None):
         user = request.user
-        data = request.data
-        user_pref, created = models.UserPref.objects.get_or_create(
-            user=user
-        )
+        user_pref = models.UserPref.objects.get(user=user)
 
         if request.method == 'PUT':
+            data = request.data
             user_pref.age = data.get('age')
             user_pref.gender = data.get('gender')
             user_pref.size = data.get('size')
