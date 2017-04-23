@@ -14,16 +14,22 @@ class UserSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
-        models.UserPref.objects.create(user=user)
         return user
 
     class Meta:
         model = get_user_model()
 
 
+class StaffUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ('is_staff',)
+
+
 class DogSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
+            'id',
             'name',
             'image_filename',
             'breed',

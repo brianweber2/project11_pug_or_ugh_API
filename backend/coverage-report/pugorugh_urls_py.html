@@ -93,6 +93,9 @@
 <p id="n22" class="pln"><a href="#n22">22</a></p>
 <p id="n23" class="pln"><a href="#n23">23</a></p>
 <p id="n24" class="pln"><a href="#n24">24</a></p>
+<p id="n25" class="pln"><a href="#n25">25</a></p>
+<p id="n26" class="pln"><a href="#n26">26</a></p>
+<p id="n27" class="pln"><a href="#n27">27</a></p>
 
             </td>
             <td class="text">
@@ -103,7 +106,7 @@
 <p id="t5" class="stm run hide_run"><span class="key">from</span> <span class="nam">rest_framework</span><span class="op">.</span><span class="nam">urlpatterns</span> <span class="key">import</span> <span class="nam">format_suffix_patterns</span><span class="strut">&nbsp;</span></p>
 <p id="t6" class="stm run hide_run"><span class="key">from</span> <span class="nam">rest_framework</span><span class="op">.</span><span class="nam">authtoken</span><span class="op">.</span><span class="nam">views</span> <span class="key">import</span> <span class="nam">obtain_auth_token</span><span class="strut">&nbsp;</span></p>
 <p id="t7" class="pln"><span class="strut">&nbsp;</span></p>
-<p id="t8" class="stm run hide_run"><span class="key">from</span> <span class="nam">pugorugh</span><span class="op">.</span><span class="nam">views</span> <span class="key">import</span> <span class="nam">UserRegisterView</span><span class="op">,</span> <span class="nam">GetNextDog</span><span class="strut">&nbsp;</span></p>
+<p id="t8" class="stm run hide_run"><span class="key">from</span> <span class="nam">pugorugh</span><span class="op">.</span><span class="nam">views</span> <span class="key">import</span> <span class="nam">UserRegisterView</span><span class="op">,</span> <span class="nam">GetFilteredDog</span><span class="op">,</span> <span class="nam">IsStaff</span><span class="strut">&nbsp;</span></p>
 <p id="t9" class="pln"><span class="strut">&nbsp;</span></p>
 <p id="t10" class="pln"><span class="com"># API endpoints</span><span class="strut">&nbsp;</span></p>
 <p id="t11" class="stm run hide_run"><span class="nam">urlpatterns</span> <span class="op">=</span> <span class="nam">format_suffix_patterns</span><span class="op">(</span><span class="op">[</span><span class="strut">&nbsp;</span></p>
@@ -117,9 +120,12 @@
 <p id="t19" class="pln">    <span class="nam">url</span><span class="op">(</span><span class="str">r'^$'</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t20" class="pln">        <span class="nam">TemplateView</span><span class="op">.</span><span class="nam">as_view</span><span class="op">(</span><span class="nam">template_name</span><span class="op">=</span><span class="str">'index.html'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t21" class="pln">        <span class="nam">name</span><span class="op">=</span><span class="str">'next_dog'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
-<p id="t22" class="pln">    <span class="nam">url</span><span class="op">(</span><span class="str">r'^api/dog/(?P&lt;pk>[-?\d]+)/(?P&lt;dog_filter>.+)/next/$'</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
-<p id="t23" class="pln">        <span class="nam">GetNextDog</span><span class="op">.</span><span class="nam">as_view</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="nam">name</span><span class="op">=</span><span class="str">'get-next-dog'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
-<p id="t24" class="pln"><span class="op">]</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
+<p id="t22" class="pln">    <span class="nam">url</span><span class="op">(</span><span class="strut">&nbsp;</span></p>
+<p id="t23" class="pln">        <span class="str">r'^api/dog/(?P&lt;pk>-?\d+)/(?P&lt;dog_filter>liked|disliked|undecided)/next/$'</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
+<p id="t24" class="pln">        <span class="nam">GetFilteredDog</span><span class="op">.</span><span class="nam">as_view</span><span class="op">(</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
+<p id="t25" class="pln">        <span class="nam">name</span><span class="op">=</span><span class="str">'filtered-dog-detail'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
+<p id="t26" class="pln">    <span class="nam">url</span><span class="op">(</span><span class="str">r'^api/user/isstaff/$'</span><span class="op">,</span> <span class="nam">IsStaff</span><span class="op">.</span><span class="nam">as_view</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="nam">name</span><span class="op">=</span><span class="str">'user-is-staff'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
+<p id="t27" class="pln"><span class="op">]</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 
             </td>
         </tr>
@@ -130,7 +136,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v4.3.4</a>,
-            created at 2017-04-23 12:55
+            created at 2017-04-23 16:31
         </p>
     </div>
 </div>

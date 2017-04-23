@@ -1,3 +1,5 @@
+from bisect import bisect
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import Http404, get_object_or_404
 from django.db.models import Q
@@ -15,7 +17,7 @@ from . import models
 
 def classify_dog_age(age_prefs):
     age_filter = {}
-    for age_pref in age_prefs:
+    for age_pref in age_prefs.split(','):
         if age_pref == 'b':
             age_filter['b'] = range(0, 12)
         elif age_pref == 'y':
@@ -39,85 +41,85 @@ class UserRegisterView(CreateAPIView):
     serializer_class = serializers.UserSerializer
 
 
-class GetNextDog(RetrieveAPIView):
+class GetFilteredDog(RetrieveAPIView):
     '''
-    Grabs the next liked, disliked or undecided dog.
+    View to get the next dog based on the user filter choice (undecided, liked
+     or disliked).
+
+    Only those undecided dogs that match user preferences are shown.
     '''
     permission_classes = (permissions.IsAuthenticated,)
     queryset = models.Dog.objects.all()
     serializer_class = serializers.DogSerializer
 
-    def _filter_on_preferences(self, dog_filter, user_prefs):
-        age_prefs = user_prefs.age.split(',')
-        gender_prefs = user_prefs.gender
-        size_prefs = user_prefs.size
-
-        age_ranges = classify_dog_age(age_prefs)
-        age_range_list = create_dog_age_list(age_ranges)
-
-        if dog_filter == 'liked':
-            query_filter = 'l'
-        elif dog_filter == 'disliked':
-            query_filter = 'd'
-        elif dog_filter == 'undecided':
-            query_filter = 'u'
-        else:
-            raise Http404
-
-        if query_filter == 'u':
-            dog_pks_to_exclude = []
-            user_dogs = models.UserDog.objects.filter(user=self.request.user)
-
-            for user_dog in user_dogs:
-                dog_pks_to_exclude.append(user_dog.dog.pk)
-
-            dogs = models.Dog.objects.filter(
-                age__in=age_range_list,
-                gender__in=gender_prefs,
-                size__in=size_prefs,
-            ).exclude(pk__in=dog_pks_to_exclude)
-            return dogs
-        elif query_filter == 'l':
-            user_dogs = models.UserDog.objects.filter(
-                user=user_prefs.user,
-                status='l'
-            )
-            return user_dogs
-        elif query_filter == 'd':
-            user_dogs = models.UserDog.objects.filter(
-                user=user_prefs.user,
-                status='d'
-            )
-            return user_dogs
-
-    def get_queryset(self):
-        user = self.request.user
-        dog_filter = self.kwargs.get('dog_filter')
-        # Get user preferences
-        user_prefs = get_object_or_404(models.UserPref, user=user)
-        # Get dogs based on user preference selections
-        queryset = self._filter_on_preferences(dog_filter, user_prefs)
-        return queryset
-
     def get_object(self):
-        pk = self.kwargs.get('pk')
-        print(pk)
-        try:
-            pk = int(pk)
-        except:
-            raise Http404
+        user = self.request.user
+        pk = int(self.kwargs.get('pk'))
         dog_filter = self.kwargs.get('dog_filter')
 
-        # Filter the query for the NEXT dog by pk
         if dog_filter == 'undecided':
-            queryset = self.get_queryset().filter(pk__gt=pk)
-            obj = queryset.first()
+            # Get size, gender and age of dogs the current user prefers.
+            (size, gender, age) = models.UserPref.objects.filter(
+                user=user
+            ).values_list('size', 'gender', 'age')[0]
+
+            # Convert the preferred age into the age query.
+            age_ranges = classify_dog_age(age)
+            age_query = create_dog_age_list(age_ranges)
+
+            # Get the ids of all dogs liked and disliked by the current user.
+            decided_dog_ids = models.Dog.objects.filter(
+                userdog__user=user
+            ).values_list('id', flat=True)
+
+            # Get a list of ordered ids of all undecided dogs, which suit the
+            # current user.
+            filtered_dogs_ids = models.Dog.objects.exclude(
+                id__in=decided_dog_ids
+            ).filter(
+                age__in=age_query,
+                size__in=size.split(','),
+                gender__in=gender.split(',')
+            ).order_by('id').values_list('id', flat=True)
+
+        elif dog_filter == 'liked':
+            # Get ids of all dogs liked by the current user
+            filtered_dogs_ids = models.Dog.objects.filter(
+                userdog__user=user,
+                userdog__status='l'
+            ).order_by('id').values_list('id', flat=True)
+
         else:
-            queryset = self.get_queryset().filter(dog__pk__gt=pk)
-            obj = queryset.first().dog
-        if not obj:
+            # Get ids of all dogs disliked by the current user
+            filtered_dogs_ids = models.Dog.objects.filter(
+                userdog__user=user,
+                userdog__status='d'
+            ).order_by('id').values_list('id', flat=True)
+
+        # If there are filtered dogs
+        if filtered_dogs_ids:
+            # If pk is equal or greater than the highest filtered dog id
+            if pk >= filtered_dogs_ids[len(filtered_dogs_ids) - 1]:
+                # Send an imaginary Dog with the id of -1
+                return models.Dog(
+                    name=None,
+                    image_filename=None,
+                    breed=None,
+                    age=None,
+                    gender=None,
+                    size=None,
+                    id=-1
+                )
+            else:
+                # Get the id of the next dog
+                index = bisect(filtered_dogs_ids, pk)
+                dog_id = filtered_dogs_ids[index]
+
+            return get_object_or_404(self.get_queryset(), pk=dog_id)
+
+        else:
+            # If there are no filtered dogs
             raise Http404
-        return obj
 
 
 class DogViewSet(
@@ -171,10 +173,10 @@ class DogViewSet(
 
 
 class UserPrefViewSet(
-    mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet):
+    """View to get and update User Preferences."""
     permission_classes = (permissions.IsAuthenticated,)
     queryset = models.UserPref.objects.all()
     serializer_class = serializers.UserPrefSerializer
@@ -195,3 +197,10 @@ class UserPrefViewSet(
         serializer = serializers.UserPrefSerializer(user_pref)
         return Response(serializer.data)
 
+
+class IsStaff(RetrieveAPIView):
+    """View to get whether the current user is staff or not."""
+    serializer_class = serializers.StaffUserSerializer
+
+    def get_object(self):
+        return self.request.user

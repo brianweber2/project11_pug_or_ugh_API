@@ -17,7 +17,8 @@ dog1 = {
     'breed': 'labrador',
     'age': 5,
     'gender': 'm',
-    'size': 'm'
+    'size': 'm',
+    'neutered': False
 }
 dog2 = {
     'name': 'Shadow',
@@ -25,7 +26,8 @@ dog2 = {
     'breed': 'golden retriever',
     'age': 35,
     'gender': 'm',
-    'size': 'l'
+    'size': 'l',
+    'neutered': False
 }
 dog3 = {
     'name': 'Skip',
@@ -33,7 +35,8 @@ dog3 = {
     'breed': 'golden retriever',
     'age': 60,
     'gender': 'f',
-    'size': 'xl'
+    'size': 'xl',
+    'neutered': False
 }
 
 dog4 = {
@@ -42,7 +45,8 @@ dog4 = {
     'breed': 'golden retriever',
     'age': 35,
     'gender': 'm',
-    'size': 'l'
+    'size': 'l',
+    'neutered': True
 }
 dog5 = {
     'name': 'Max',
@@ -50,7 +54,8 @@ dog5 = {
     'breed': 'pug',
     'age': 3,
     'gender': 'm',
-    'size': 's'
+    'size': 's',
+    'neutered': False
 }
 dog6 = {
     'name': 'Bruce',
@@ -58,7 +63,8 @@ dog6 = {
     'breed': 'bulldog',
     'age': 120,
     'gender': 'm',
-    'size': 'l'
+    'size': 'l',
+    'neutered': True
 }
 
 # Base testing
@@ -77,12 +83,6 @@ class BasicSetupForAPITests(APITestCase):
         self.test_dog5 = Dog.objects.create(**dog5)
         self.test_dog6 = Dog.objects.create(**dog6)
 
-        self.test_user_pref = UserPref.objects.create(
-            user=self.test_user,
-            age='b,y,a,s',
-            gender='m,f',
-            size='s,m,l,xl'
-        )
         self.test_user_dog1 = UserDog.objects.create(
             user=self.test_user,
             dog=self.test_dog1,
@@ -190,10 +190,14 @@ class DogViewsTests(BasicSetupForAPITests):
     def test_get_next_undecided_dog(self):
         response = self.client.get('/api/dog/1/undecided/next/')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], 5)
 
-    def test_get_next_undecided_dog_404(self):
+    def test_get_next_undecided_dog_exceed_max_pk(self):
         response = self.client.get('/api/dog/7/undecided/next/')
-        self.assertEqual(response.status_code, 404)
+        data = response.data
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['id'], -1)
+        self.assertEqual(data['name'], None)
 
     def test_bad_filter(self):
         response = self.client.get('/api/dog/1/likedd/next/')
@@ -387,7 +391,7 @@ class DogSerializerTest(TestCase):
 
     def test_contains_expected_fields(self):
         data = self.serializer.data
-        self.assertCountEqual(data.keys(), ['name', 'image_filename',
+        self.assertCountEqual(data.keys(), ['id', 'name', 'image_filename',
             'breed', 'age', 'gender', 'size'])
 
     def test_name_field_content(self):
@@ -529,7 +533,7 @@ class UserPrefModelTests(TestCase):
         self.test_user.delete()
 
     def test_create_user_dog(self):
-        user_pref = UserPref.objects.create(
+        user_pref = UserPref.objects.get(
             user=self.test_user,
         )
         self.assertEqual(user_pref.user.username, 'test_user')
