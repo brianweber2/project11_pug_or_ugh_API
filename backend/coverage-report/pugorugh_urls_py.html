@@ -117,8 +117,8 @@
 <p id="t19" class="pln">    <span class="nam">url</span><span class="op">(</span><span class="str">r'^$'</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t20" class="pln">        <span class="nam">TemplateView</span><span class="op">.</span><span class="nam">as_view</span><span class="op">(</span><span class="nam">template_name</span><span class="op">=</span><span class="str">'index.html'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t21" class="pln">        <span class="nam">name</span><span class="op">=</span><span class="str">'next_dog'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
-<p id="t22" class="pln">    <span class="nam">url</span><span class="op">(</span><span class="str">r'^api/dog/(?P&lt;pk>\d+)/(?P&lt;dog_filter>.+)/next/$'</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
-<p id="t23" class="pln">        <span class="nam">GetNextDog</span><span class="op">.</span><span class="nam">as_view</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
+<p id="t22" class="pln">    <span class="nam">url</span><span class="op">(</span><span class="str">r'^api/dog/(?P&lt;pk>[-?\d]+)/(?P&lt;dog_filter>.+)/next/$'</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
+<p id="t23" class="pln">        <span class="nam">GetNextDog</span><span class="op">.</span><span class="nam">as_view</span><span class="op">(</span><span class="op">)</span><span class="op">,</span> <span class="nam">name</span><span class="op">=</span><span class="str">'get-next-dog'</span><span class="op">)</span><span class="op">,</span><span class="strut">&nbsp;</span></p>
 <p id="t24" class="pln"><span class="op">]</span><span class="op">)</span><span class="strut">&nbsp;</span></p>
 
             </td>
@@ -130,7 +130,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v4.3.4</a>,
-            created at 2017-04-18 16:30
+            created at 2017-04-23 12:55
         </p>
     </div>
 </div>

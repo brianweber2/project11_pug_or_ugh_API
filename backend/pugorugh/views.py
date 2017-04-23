@@ -65,11 +65,17 @@ class GetNextDog(RetrieveAPIView):
             raise Http404
 
         if query_filter == 'u':
+            dog_pks_to_exclude = []
+            user_dogs = models.UserDog.objects.filter(user=self.request.user)
+
+            for user_dog in user_dogs:
+                dog_pks_to_exclude.append(user_dog.dog.pk)
+
             dogs = models.Dog.objects.filter(
                 age__in=age_range_list,
                 gender__in=gender_prefs,
                 size__in=size_prefs,
-            )
+            ).exclude(pk__in=dog_pks_to_exclude)
             return dogs
         elif query_filter == 'l':
             user_dogs = models.UserDog.objects.filter(

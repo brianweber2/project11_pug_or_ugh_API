@@ -79,8 +79,9 @@ class BasicSetupForAPITests(APITestCase):
 
         self.test_user_pref = UserPref.objects.create(
             user=self.test_user,
-            age=['b', 'y', 'a', 's'],
-            gender=['m', 'f']
+            age='b,y,a,s',
+            gender='m,f',
+            size='s,m,l,xl'
         )
         self.test_user_dog1 = UserDog.objects.create(
             user=self.test_user,
@@ -246,9 +247,9 @@ class UserPrefViewsTests(BasicSetupForAPITests):
         )
         test_user_pref = UserPref.objects.get(user=self.test_user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['gender'], test_user_pref.gender[0])
-        self.assertEqual(response.data['age'], test_user_pref.age[0])
-        self.assertEqual(response.data['size'], test_user_pref.size[0])
+        self.assertEqual(response.data['gender'], test_user_pref.gender)
+        self.assertEqual(response.data['age'], test_user_pref.age)
+        self.assertEqual(response.data['size'], test_user_pref.size)
 
     def test_update_user_pref_mult_values(self):
         response = self.client.put(
@@ -532,8 +533,8 @@ class UserPrefModelTests(TestCase):
             user=self.test_user,
         )
         self.assertEqual(user_pref.user.username, 'test_user')
-        self.assertEqual(user_pref.age, 'b')
-        self.assertEqual(user_pref.gender, 'm')
-        self.assertEqual(user_pref.size, 's')
+        self.assertIn('b', user_pref.age)
+        self.assertIn('m', user_pref.gender)
+        self.assertIn('s', user_pref.size)
 
 
